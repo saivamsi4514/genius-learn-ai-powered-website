@@ -22,6 +22,9 @@ import Payment from "./pages/Payment";
 // Student Dashboard Pages
 import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
 import AITutor from "./pages/dashboard/student/AITutor";
+import Quizzes from "./pages/dashboard/student/Quizzes";
+import Courses from "./pages/dashboard/student/Courses";
+import ARVR from "./pages/dashboard/student/ARVR";
 
 // Teacher Dashboard Pages
 import TeacherDashboard from "./pages/dashboard/teacher/TeacherDashboard";
@@ -66,6 +69,30 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredRole="student">
                     <AITutor />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/student/quizzes" 
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <Quizzes />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/student/courses" 
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <Courses />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/student/ar-vr" 
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <ARVR />
                   </ProtectedRoute>
                 } 
               />

@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Menu, X, LogOut } from "lucide-react";
+import { GraduationCap, Menu, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -140,16 +140,15 @@ const Header = () => {
                 >
                   Dashboard
                 </Link>
-                <Button 
-                  variant="ghost" 
-                  className="px-3 py-2 text-sm rounded-md text-muted-foreground hover:bg-secondary/50 hover:text-foreground justify-start"
+                <button 
+                  className="px-3 py-2 text-sm rounded-md text-left text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
                   onClick={() => {
                     logout();
                     setIsOpen(false);
                   }}
                 >
                   Logout
-                </Button>
+                </button>
               </>
             )}
           </nav>
