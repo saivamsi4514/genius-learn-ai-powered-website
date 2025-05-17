@@ -5,6 +5,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
+import { AuthProvider } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
 // Landing Pages
 import Index from "./pages/Index";
@@ -34,32 +36,62 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <HelmetProvider>
-        <Toaster />
-        <Sonner />
         <BrowserRouter>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<Index />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/features" element={<Features />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/career-consulting" element={<CareerConsulting />} />
-            <Route path="/career-guide" element={<CareerGuide />} />
-            <Route path="/scholarships" element={<Scholarships />} />
-            <Route path="/payment" element={<Payment />} />
+          <AuthProvider>
+            <Toaster />
+            <Sonner />
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<Index />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/features" element={<Features />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/career-consulting" element={<CareerConsulting />} />
+              <Route path="/career-guide" element={<CareerGuide />} />
+              <Route path="/scholarships" element={<Scholarships />} />
+              <Route path="/payment" element={<Payment />} />
 
-            {/* Student Dashboard Routes */}
-            <Route path="/dashboard/student" element={<StudentDashboard />} />
-            <Route path="/dashboard/student/ai-tutor" element={<AITutor />} />
+              {/* Student Dashboard Routes - Protected */}
+              <Route 
+                path="/dashboard/student" 
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <StudentDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/student/ai-tutor" 
+                element={
+                  <ProtectedRoute requiredRole="student">
+                    <AITutor />
+                  </ProtectedRoute>
+                } 
+              />
 
-            {/* Teacher Dashboard Routes */}
-            <Route path="/dashboard/teacher" element={<TeacherDashboard />} />
-            <Route path="/dashboard/teacher/create-quiz" element={<CreateQuiz />} />
-            
-            {/* 404 Catch-all Route */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+              {/* Teacher Dashboard Routes - Protected */}
+              <Route 
+                path="/dashboard/teacher" 
+                element={
+                  <ProtectedRoute requiredRole="teacher">
+                    <TeacherDashboard />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/dashboard/teacher/create-quiz" 
+                element={
+                  <ProtectedRoute requiredRole="teacher">
+                    <CreateQuiz />
+                  </ProtectedRoute>
+                } 
+              />
+              
+              {/* 404 Catch-all Route */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
         </BrowserRouter>
       </HelmetProvider>
     </TooltipProvider>

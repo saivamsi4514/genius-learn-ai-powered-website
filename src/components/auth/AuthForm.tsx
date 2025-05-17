@@ -1,12 +1,11 @@
 
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "sonner";
 import {
   Form,
   FormControl,
@@ -17,6 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth, UserRole } from "@/contexts/AuthContext";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address." }),
@@ -43,7 +43,12 @@ type RegisterValues = z.infer<typeof registerSchema>;
 
 const AuthForm = () => {
   const [activeTab, setActiveTab] = useState<string>("login");
+  const { login, register, loading } = useAuth();
+  const location = useLocation();
   const navigate = useNavigate();
+  
+  // Get redirect path from location state or default to dashboard
+  const from = location.state?.from?.pathname || "/";
 
   // Login form
   const loginForm = useForm<LoginValues>({
@@ -65,20 +70,12 @@ const AuthForm = () => {
     },
   });
 
-  const onLoginSubmit = (values: LoginValues) => {
-    console.log("Login values:", values);
-    // Simulate login
-    toast.success("Successfully logged in!");
-    // Navigate to dashboard based on simulated role (student for now)
-    setTimeout(() => navigate("/dashboard/student"), 1000);
+  const onLoginSubmit = async (values: LoginValues) => {
+    await login(values.email, values.password, from);
   };
 
-  const onRegisterSubmit = (values: RegisterValues) => {
-    console.log("Register values:", values);
-    // Simulate registration
-    toast.success("Registration successful! Welcome to EduGenius.");
-    // Navigate to dashboard based on selected role
-    setTimeout(() => navigate(`/dashboard/${values.role}`), 1000);
+  const onRegisterSubmit = async (values: RegisterValues) => {
+    await register(values.name, values.email, values.password, values.role as UserRole);
   };
 
   return (
@@ -129,8 +126,15 @@ const AuthForm = () => {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full">
-                    Login
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-b-transparent"></span>
+                        Logging in...
+                      </span>
+                    ) : (
+                      "Login"
+                    )}
                   </Button>
                 </form>
               </Form>
@@ -213,8 +217,15 @@ const AuthForm = () => {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" className="w-full">
-                    Create Account
+                  <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <span className="h-4 w-4 animate-spin rounded-full border-2 border-b-transparent"></span>
+                        Creating account...
+                      </span>
+                    ) : (
+                      "Create Account"
+                    )}
                   </Button>
                 </form>
               </Form>

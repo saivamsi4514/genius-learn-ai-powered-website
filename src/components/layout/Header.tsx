@@ -1,12 +1,15 @@
 
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Menu, X } from "lucide-react";
+import { GraduationCap, Menu, X, LogOut } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, user, logout } = useAuth();
   
   const navItems = [
     { name: "Home", href: "/" },
@@ -18,6 +21,16 @@ const Header = () => {
   ];
   
   const isActive = (path: string) => location.pathname === path;
+
+  // Get first letter of first and last name for avatar
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(part => part[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <header className="py-4 border-b bg-background/80 backdrop-blur-md sticky top-0 z-40">
@@ -50,14 +63,40 @@ const Header = () => {
               Plans & Pricing
             </Button>
           </Link>
-          <Link to="/login">
-            <Button variant="ghost" size="sm">
-              Log In
-            </Button>
-          </Link>
-          <Link to="/register">
-            <Button size="sm">Sign Up</Button>
-          </Link>
+          
+          {isAuthenticated ? (
+            <>
+              <Link to={`/dashboard/${user?.role}`}>
+                <Button variant="ghost" size="sm">
+                  Dashboard
+                </Button>
+              </Link>
+              <Button 
+                variant="ghost" 
+                size="sm"
+                className="gap-2"
+                onClick={logout}
+              >
+                <Avatar className="h-6 w-6">
+                  <AvatarFallback className="bg-edu-purple text-white text-xs">
+                    {user?.name ? getInitials(user.name) : "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden sm:inline">Logout</span>
+              </Button>
+            </>
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">
+                  Log In
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm">Sign Up</Button>
+              </Link>
+            </>
+          )}
           
           {/* Mobile menu button */}
           <Button
@@ -92,6 +131,27 @@ const Header = () => {
             <Link to="/payment" className="px-3 py-2 text-sm rounded-md text-muted-foreground hover:bg-secondary/50 hover:text-foreground" onClick={() => setIsOpen(false)}>
               Plans & Pricing
             </Link>
+            {isAuthenticated && (
+              <>
+                <Link 
+                  to={`/dashboard/${user?.role}`}
+                  className="px-3 py-2 text-sm rounded-md text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Dashboard
+                </Link>
+                <Button 
+                  variant="ghost" 
+                  className="px-3 py-2 text-sm rounded-md text-muted-foreground hover:bg-secondary/50 hover:text-foreground justify-start"
+                  onClick={() => {
+                    logout();
+                    setIsOpen(false);
+                  }}
+                >
+                  Logout
+                </Button>
+              </>
+            )}
           </nav>
         </div>
       )}

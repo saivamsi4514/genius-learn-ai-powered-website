@@ -2,7 +2,9 @@
 import { useState } from "react";
 import { 
   BellIcon, 
-  Search 
+  Search,
+  LogOut,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface DashboardHeaderProps {
   userType: 'student' | 'teacher' | 'admin';
@@ -25,6 +28,7 @@ interface DashboardHeaderProps {
 
 export function DashboardHeader({ userType, userName }: DashboardHeaderProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const { logout, user } = useAuth();
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,6 +45,9 @@ export function DashboardHeader({ userType, userName }: DashboardHeaderProps) {
       .toUpperCase()
       .slice(0, 2);
   };
+
+  // Use the actual user name from auth context if available
+  const displayName = user?.name || userName;
 
   return (
     <header className="flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -97,15 +104,19 @@ export function DashboardHeader({ userType, userName }: DashboardHeaderProps) {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon" className="rounded-full">
                 <Avatar>
-                  <AvatarFallback className="bg-edu-purple text-white">{getInitials(userName)}</AvatarFallback>
+                  <AvatarFallback className="bg-edu-purple text-white">{getInitials(displayName)}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{displayName}</DropdownMenuLabel>
+              <DropdownMenuLabel className="text-xs text-muted-foreground font-normal">
+                {user?.email}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="cursor-pointer">
-                <Link to={`/dashboard/${userType}/profile`} className="w-full">
+                <Link to={`/dashboard/${userType}/profile`} className="w-full flex items-center">
+                  <User className="mr-2 h-4 w-4" />
                   Profile
                 </Link>
               </DropdownMenuItem>
@@ -115,10 +126,12 @@ export function DashboardHeader({ userType, userName }: DashboardHeaderProps) {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <Link to="/" className="w-full">
-                  Log out
-                </Link>
+              <DropdownMenuItem 
+                className="cursor-pointer text-destructive focus:text-destructive" 
+                onClick={logout}
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
