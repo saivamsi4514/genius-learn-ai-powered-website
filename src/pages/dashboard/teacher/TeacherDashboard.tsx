@@ -1,5 +1,5 @@
 
-import DashboardLayout from "@/src/layouts/DashboardLayout";
+import DashboardLayout from "@/layouts/DashboardLayout";
 import { TeacherDashboardOverview } from "@/components/dashboard/teacher/TeacherDashboardOverview";
 import { Helmet } from "react-helmet";
 

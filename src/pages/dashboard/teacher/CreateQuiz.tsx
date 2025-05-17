@@ -1,5 +1,5 @@
 
-import DashboardLayout from "@/src/layouts/DashboardLayout";
+import DashboardLayout from "@/layouts/DashboardLayout";
 import { QuizGenerator } from "@/components/dashboard/teacher/QuizGenerator";
 import { Helmet } from "react-helmet";
 
