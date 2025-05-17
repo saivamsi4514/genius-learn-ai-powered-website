@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { Helmet } from "react-helmet";
+import { Helmet } from "react-helmet-async";
 
 // Landing Pages
 import Index from "./pages/Index";
@@ -12,6 +12,10 @@ import About from "./pages/About";
 import Features from "./pages/Features";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import CareerConsulting from "./pages/CareerConsulting";
+import CareerGuide from "./pages/CareerGuide";
+import Scholarships from "./pages/Scholarships";
+import Payment from "./pages/Payment";
 
 // Student Dashboard Pages
 import StudentDashboard from "./pages/dashboard/student/StudentDashboard";
@@ -43,6 +47,10 @@ const App = () => (
           <Route path="/features" element={<Features />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/career-consulting" element={<CareerConsulting />} />
+          <Route path="/career-guide" element={<CareerGuide />} />
+          <Route path="/scholarships" element={<Scholarships />} />
+          <Route path="/payment" element={<Payment />} />
 
           {/* Student Dashboard Routes */}
           <Route path="/dashboard/student" element={<StudentDashboard />} />
