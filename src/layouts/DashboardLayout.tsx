@@ -1,5 +1,5 @@
 
-import { ReactNode, useState } from "react";
+import { ReactNode } from "react";
 import { DashboardSidebar } from "@/components/dashboard/Sidebar";
 import { DashboardHeader } from "@/components/dashboard/DashboardHeader";
 import { SidebarProvider } from "@/components/ui/sidebar";
@@ -18,7 +18,7 @@ const DashboardLayout = ({ children, userType }: DashboardLayoutProps) => {
       : 'Admin User';
 
   return (
-    <SidebarProvider collapsedWidth={16 * 4}>
+    <SidebarProvider>
       <div className="min-h-screen bg-background flex w-full">
         <DashboardSidebar userType={userType} />
         <div className="flex-1 flex flex-col">

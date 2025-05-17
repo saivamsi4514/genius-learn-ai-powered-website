@@ -31,7 +31,9 @@ interface SidebarProps {
 }
 
 export function DashboardSidebar({ userType }: SidebarProps) {
-  const { collapsed } = useSidebar();
+  const sidebarContext = useSidebar();
+  // Access state directly instead of collapsed property
+  const collapsed = sidebarContext.state === "collapsed";
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -76,7 +78,7 @@ export function DashboardSidebar({ userType }: SidebarProps) {
         collapsed ? "w-16" : "w-64",
         "transition-all duration-300"
       )}
-      collapsible
+      collapsible="icon"
     >
       <SidebarTrigger className="hidden md:flex m-2 self-end" />
 
@@ -92,7 +94,7 @@ export function DashboardSidebar({ userType }: SidebarProps) {
       </div>
 
       <SidebarContent>
-        <SidebarGroup defaultOpen>
+        <SidebarGroup>
           <SidebarGroupLabel className={cn(collapsed && "sr-only")}>
             Menu
           </SidebarGroupLabel>
@@ -120,7 +122,7 @@ export function DashboardSidebar({ userType }: SidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup defaultOpen>
+        <SidebarGroup>
           <SidebarGroupLabel className={cn(collapsed && "sr-only")}>
             Settings
           </SidebarGroupLabel>
