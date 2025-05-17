@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { GraduationCap, Message } from "lucide-react";
+import { GraduationCap, MessageSquare } from "lucide-react";
 
 export function CareerConsultingHero() {
   return (
@@ -24,7 +24,7 @@ export function CareerConsultingHero() {
               </Button>
               <Button size="lg" variant="outline" className="gap-2" asChild>
                 <Link to="/career-guide">
-                  <Message className="w-5 h-5" />
+                  <MessageSquare className="w-5 h-5" />
                   Try Our AI Career Chatbot
                 </Link>
               </Button>
