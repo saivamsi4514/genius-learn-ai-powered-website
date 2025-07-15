@@ -47,7 +47,7 @@ export function DashboardHeader({ userType, userName }: DashboardHeaderProps) {
   };
 
   // Use the actual user name from auth context if available
-  const displayName = user?.name || userName;
+  const displayName = user?.full_name || userName;
 
   return (
     <header className="flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">

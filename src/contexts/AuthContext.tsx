@@ -2,13 +2,14 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 // Define user types
 export type UserRole = "student" | "teacher" | "admin";
 
 export interface User {
   id: string;
-  name: string;
+  full_name: string;
   email: string;
   role: UserRole;
 }
@@ -25,24 +26,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock user database for demo purposes
-// In a real app, this would be stored in a database
-const MOCK_USERS = [
-  {
-    id: "1",
-    name: "John Doe",
-    email: "student@example.com",
-    password: "password",
-    role: "student" as UserRole,
-  },
-  {
-    id: "2",
-    name: "Professor Smith",
-    email: "teacher@example.com",
-    password: "password",
-    role: "teacher" as UserRole,
-  },
-];
+// Real database authentication using Supabase
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -63,24 +47,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data, error } = await supabase.functions.invoke('auth-login', {
+        body: { email, password }
+      });
+
+      if (error) throw error;
       
-      // Find user in mock database
-      const foundUser = MOCK_USERS.find(
-        (u) => u.email === email && u.password === password
-      );
-      
-      if (!foundUser) {
-        throw new Error("Invalid email or password");
+      if (data.error) {
+        throw new Error(data.error);
       }
-      
-      // Create user object (without password)
+
       const userObj = {
-        id: foundUser.id,
-        name: foundUser.name,
-        email: foundUser.email,
-        role: foundUser.role,
+        id: data.user.id,
+        full_name: data.user.full_name,
+        email: data.user.email,
+        role: data.user.role.toLowerCase() as UserRole,
       };
       
       // Save user to state and localStorage
@@ -90,7 +71,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast.success("Successfully logged in!");
       
       // Redirect user to dashboard based on role
-      navigate(redirectTo || `/dashboard/${foundUser.role}`);
+      navigate(redirectTo || `/dashboard/${userObj.role}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Login failed");
     } finally {
@@ -103,31 +84,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const { data, error } = await supabase.functions.invoke('auth-signup', {
+        body: { 
+          full_name: name,
+          email, 
+          password, 
+          role: role === 'student' ? 'Student' : 'Teacher'
+        }
+      });
+
+      if (error) throw error;
       
-      // Check if user already exists
-      if (MOCK_USERS.some((u) => u.email === email)) {
-        throw new Error("User already exists with this email");
+      if (data.error) {
+        throw new Error(data.error);
       }
-      
-      // Create new user object
-      const newUser = {
-        id: `${MOCK_USERS.length + 1}`,
-        name,
-        email,
-        password,
-        role,
-      };
-      
-      // In a real app, this would save to a database
-      
-      // Create user object (without password)
+
       const userObj = {
-        id: newUser.id,
-        name: newUser.name,
-        email: newUser.email,
-        role: newUser.role,
+        id: data.user.id,
+        full_name: data.user.full_name,
+        email: data.user.email,
+        role: data.user.role.toLowerCase() as UserRole,
       };
       
       // Save user to state and localStorage
@@ -137,7 +113,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       toast.success("Registration successful!");
       
       // Redirect user to dashboard based on role
-      navigate(`/dashboard/${role}`);
+      navigate(`/dashboard/${userObj.role}`);
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Registration failed");
     } finally {

@@ -79,7 +79,7 @@ const Header = () => {
               >
                 <Avatar className="h-6 w-6">
                   <AvatarFallback className="bg-edu-purple text-white text-xs">
-                    {user?.name ? getInitials(user.name) : "U"}
+                    {user?.full_name ? getInitials(user.full_name) : "U"}
                   </AvatarFallback>
                 </Avatar>
                 <span className="hidden sm:inline">Logout</span>
