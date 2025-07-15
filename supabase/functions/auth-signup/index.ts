@@ -8,34 +8,51 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('auth-signup function called')
+  
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
     const { full_name, email, password, role } = await req.json()
+    console.log('Received data:', { full_name, email, role })
 
     if (!full_name || !email || !password || !role) {
+      console.error('Missing required fields')
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Initialize Supabase client with service key for admin operations
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    // Initialize Supabase client using environment variables from edge function context
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    
+    console.log('Supabase URL available:', !!supabaseUrl)
+    console.log('Service key available:', !!supabaseServiceKey)
+    
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
     // Check if user already exists
-    const { data: existingUser } = await supabaseAdmin
+    console.log('Checking if user exists with email:', email)
+    const { data: existingUser, error: checkError } = await supabaseAdmin
       .from('users')
       .select('id')
       .eq('email', email)
-      .single()
+      .maybeSingle()
+
+    if (checkError) {
+      console.error('Error checking existing user:', checkError)
+      return new Response(
+        JSON.stringify({ error: 'Database error while checking existing user' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
 
     if (existingUser) {
+      console.log('User already exists')
       return new Response(
         JSON.stringify({ error: 'User already exists with this email' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -43,9 +60,11 @@ serve(async (req) => {
     }
 
     // Hash the password
+    console.log('Hashing password')
     const hashedPassword = await hash(password, 10)
 
     // Insert user into database
+    console.log('Inserting new user')
     const { data: newUser, error } = await supabaseAdmin
       .from('users')
       .insert({
@@ -60,11 +79,13 @@ serve(async (req) => {
     if (error) {
       console.error('Database error:', error)
       return new Response(
-        JSON.stringify({ error: 'Failed to create user' }),
+        JSON.stringify({ error: 'Failed to create user: ' + error.message }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+    console.log('User created successfully:', newUser.id)
+    
     // Return user data without password
     const { password: _, ...userWithoutPassword } = newUser
     
@@ -76,7 +97,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Signup error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error: ' + error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

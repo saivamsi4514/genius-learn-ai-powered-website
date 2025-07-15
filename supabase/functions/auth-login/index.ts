@@ -8,50 +8,70 @@ const corsHeaders = {
 }
 
 serve(async (req) => {
+  console.log('auth-login function called')
+  
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders })
   }
 
   try {
     const { email, password } = await req.json()
+    console.log('Login attempt for email:', email)
 
     if (!email || !password) {
+      console.error('Missing email or password')
       return new Response(
         JSON.stringify({ error: 'Email and password are required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Initialize Supabase client with service key for admin operations
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    // Initialize Supabase client using environment variables from edge function context
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    
+    console.log('Supabase URL available:', !!supabaseUrl)
+    console.log('Service key available:', !!supabaseServiceKey)
+    
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
 
     // Find user by email
+    console.log('Looking up user by email:', email)
     const { data: user, error } = await supabaseAdmin
       .from('users')
       .select('*')
       .eq('email', email)
-      .single()
+      .maybeSingle()
 
-    if (error || !user) {
+    if (error) {
+      console.error('Database error:', error)
+      return new Response(
+        JSON.stringify({ error: 'Database error: ' + error.message }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!user) {
+      console.log('User not found')
       return new Response(
         JSON.stringify({ error: 'Invalid email or password' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+    console.log('User found, verifying password')
     // Verify password
     const isValidPassword = await compare(password, user.password)
 
     if (!isValidPassword) {
+      console.log('Invalid password')
       return new Response(
         JSON.stringify({ error: 'Invalid email or password' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
+    console.log('Login successful for user:', user.id)
     // Return user data without password
     const { password: _, ...userWithoutPassword } = user
     
@@ -63,7 +83,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Login error:', error)
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ error: 'Internal server error: ' + error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
