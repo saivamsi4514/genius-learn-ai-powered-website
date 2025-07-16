@@ -105,13 +105,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       // Wait for the auth state to update, then navigate
       setTimeout(() => {
-        // Navigate based on user role if available, otherwise to general dashboard
-        if (user?.role) {
-          const targetPath = redirectTo || `/dashboard/${user.role}`;
-          navigate(targetPath);
-        } else {
-          navigate(redirectTo || '/dashboard');
-        }
+        const targetPath = redirectTo || '/dashboard';
+        navigate(targetPath);
       }, 500);
     } catch (error) {
       console.error('Login error:', error);
@@ -158,7 +153,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Wait for the auth state to update, then navigate
         setTimeout(() => {
-          navigate(`/dashboard/${role}`);
+          navigate('/dashboard');
         }, 500);
       }
     } catch (error) {

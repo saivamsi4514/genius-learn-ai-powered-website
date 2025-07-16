@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import DashboardRedirect from "@/components/auth/DashboardRedirect";
 
 // Landing Pages
 import Index from "./pages/Index";
@@ -54,6 +55,16 @@ const App = () => (
               <Route path="/career-guide" element={<CareerGuide />} />
               <Route path="/scholarships" element={<Scholarships />} />
               <Route path="/payment" element={<Payment />} />
+
+              {/* General Dashboard Route - Redirects based on user role */}
+              <Route 
+                path="/dashboard" 
+                element={
+                  <ProtectedRoute>
+                    <DashboardRedirect />
+                  </ProtectedRoute>
+                } 
+              />
 
               {/* Student Dashboard Routes - Protected */}
               <Route 
