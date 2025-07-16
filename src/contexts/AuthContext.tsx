@@ -102,12 +102,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       toast.success('Login successful!');
-      
-      // Wait for the auth state to update, then navigate
-      setTimeout(() => {
-        const targetPath = redirectTo || '/dashboard';
-        navigate(targetPath);
-      }, 500);
     } catch (error) {
       console.error('Login error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Login failed';
@@ -150,11 +144,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         toast.success('Registration successful! Please check your email to verify your account.');
       } else {
         toast.success('Registration successful! Welcome to EduGenius!');
-        
-        // Wait for the auth state to update, then navigate
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 500);
       }
     } catch (error) {
       console.error('Registration error:', error);

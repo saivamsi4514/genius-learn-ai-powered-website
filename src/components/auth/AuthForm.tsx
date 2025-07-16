@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -43,12 +43,19 @@ type RegisterValues = z.infer<typeof registerSchema>;
 
 const AuthForm = () => {
   const [activeTab, setActiveTab] = useState<string>("login");
-  const { login, register, loading } = useAuth();
+  const { login, register, loading, user, isAuthenticated } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   
   // Get redirect path from location state or default to dashboard
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname || "/dashboard";
+
+  // Redirect authenticated users
+  useEffect(() => {
+    if (isAuthenticated && user) {
+      navigate(from);
+    }
+  }, [isAuthenticated, user, navigate, from]);
 
   // Login form
   const loginForm = useForm<LoginValues>({
